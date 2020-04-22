@@ -1,0 +1,15 @@
+{
+    "slides": {
+        "slide1.xml": {
+            "used_colors": [
+                "000000"
+            ],
+            "bg": "ffffff",
+            "use_additional_color_for_emphasis": false
+        }
+    },
+    "used_3-to-4_colors_only": true,
+    "used_contrasting_colors_between_text_and_background": true,
+    "avoided_vibrating_color_combinations": false,
+    "use_additional_color_for_emphasis_all": false
+}

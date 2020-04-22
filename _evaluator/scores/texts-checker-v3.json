@@ -1,0 +1,25 @@
+{
+    "slides": {
+        "slide1.xml": {
+            "font_sizes": [
+                1,
+                1
+            ],
+            "font_faces": [
+                1,
+                1
+            ],
+            "font_styles_bold": 0,
+            "font_styles_italic": 0,
+            "font_styles_underlined": 0,
+            "used_large_fonts": true,
+            "used_sans_serif": true,
+            "used_bold_italic_underlined_sparingly": false
+        }
+    },
+    "used_3_font_sizes_only": true,
+    "used_2_fonts_only": true,
+    "used_large_fonts_all": true,
+    "used_sans_serif_all": true,
+    "used_bold_italic_underlined_sparingly_all": false
+}

@@ -1,0 +1,21 @@
+{
+    "slides": {
+        "bold": [
+            -1
+        ],
+        "italic": [],
+        "underlined": [],
+        "bold_italic": [],
+        "bold_underlined": [],
+        "italic_underlined": [],
+        "bold_italic_underlined": []
+    },
+    "total_bold": -0.5,
+    "total_italic": 0,
+    "total_underlined": 0,
+    "total_bold_italic": 0,
+    "total_bold_underlined": 0,
+    "total_italic_underlined": 0,
+    "total_bold_italic_underlined": 0,
+    "total_improvement": -0.5
+}
