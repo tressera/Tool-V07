@@ -104,9 +104,11 @@
                                     <h3 class="text-center">
                                         <?php
                                             echo number_format((float)$json_a["font_style_improvement"] * 100, 2, '.', '');
-                                        ?>%
+                                        ?>% ERROR
                                     </h3>
                                     <h6 class="text-center font-g">FONT (STYLE)<br>IMPROVEMENT</h6>
+                                    <br>
+                                    <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use bold, italics, and underline sparingly</p>
                                 </div>
 
 
@@ -115,9 +117,12 @@
                                     <h3 class="text-center">
                                         <?php
                                             echo number_format((float)$json_a["font_color_improvement"] * 100, 2, '.', '');
-                                        ?>%
+                                        ?>% ERROR
                                     </h3>
                                     <h6 class="text-center font-g">(TEXT) COLOR <br>IMPROVEMENT</h6>
+                                    <br>
+                                    <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use additional color in text for emphasis only</p>
+                                    <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use contrasting color</p>
                                 </div>
 
 
@@ -126,9 +131,11 @@
                                     <h3 class="text-center">
                                         <?php
                                             echo number_format((float)$json_a["font_image_improvement"] * 100, 2, '.', '');
-                                        ?>%
+                                        ?>% ERROR
                                     </h3>
                                     <h6 class="text-center font-g">IMAGE <br>IMPROVEMENT</h6>
+                                    <br>
+                                    <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use 2 images per slide at most</p>
                                 </div>
 
                                 <div class="col-lg-3 mb-3 ">
