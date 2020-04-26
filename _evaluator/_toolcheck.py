@@ -6,13 +6,10 @@ from utils import get_file, contrastor, convert_rgb, get_image_reso, is_sans
 
 class ToolChecker(Mixin):
 
-
     check_file = '' # path to base pptx
-
 
     def __init__(self, filepath):
         self.check_file = filepath
-
     
     def check_texts(self,):
         summary = {
@@ -50,25 +47,18 @@ class ToolChecker(Mixin):
 
                 font_size = 1 if word['font_size'] is not None and word['font_size'] >= 24 and word['font_size'] <= 44 else 0
                 font_face = 1 if is_sans(word['font_name']) else 0
-                # font_style = 1 if is_sans(word['font_name']) else 0
 
                 bold_alias = 'Bold'
                 if bold_alias in word['font_styles']:
                     summary['slides'][slide]['font_styles_bold'] = summary['slides'][slide]['font_styles_bold'] + 1 
-                    #if bold_alias not in diff_fonts:
-                        #diff_fonts.append(bold_alias)
                 
                 italic_alias = 'Italic'
                 if italic_alias in word['font_styles']:
                     summary['slides'][slide]['font_styles_italic'] = summary['slides'][slide]['font_styles_italic'] + 1 
-                    #if italic_alias not in diff_fonts:
-                        #diff_fonts.append(italic_alias)
                 
                 underlined_alias = 'Underlined'
                 if underlined_alias in word['font_styles']:
                     summary['slides'][slide]['font_styles_underlined'] = summary['slides'][slide]['font_styles_underlined'] + 1 
-                    #if underlined_alias not in diff_fonts:
-                        #diff_fonts.append(underlined_alias)
 
                 summary['slides'][slide]['font_sizes'].append(font_size)
                 summary['slides'][slide]['font_faces'].append(font_face)
@@ -95,19 +85,14 @@ class ToolChecker(Mixin):
             if ave_bold <= 0.25 and ave_italic <= 0.25 and ave_underlined <= 0.25 and total_biu >= 0.05:
                 summary['slides'][slide]['used_bold_italic_underlined_sparingly'] = True
                 summary['used_bold_italic_underlined_sparingly_all'] = True
-            
 
         if len(diff_fsizes) <= 3:
             summary['used_3_font_sizes_only'] = True
 
-        print(diff_fonts)
-
         if len(diff_fonts) <= 2:
             summary['used_2_fonts_only'] = True
         
-        print(summary)
         return summary
-
 
     def check_colors(self,):
         summary = {
@@ -125,10 +110,12 @@ class ToolChecker(Mixin):
         for slide in _texts_file:
             _info_file = _texts_file[slide]
 
+            base_color = '000000'
             tmp = {
-                'used_colors': [],
-                # 'contrasts': [],
                 'bg': 'ffffff', # default
+                'used_colors': [],
+                'non_base_colors': [],
+                'all_colors_contrast': True,
                 'use_additional_color_for_emphasis': None
             }
 
@@ -138,32 +125,39 @@ class ToolChecker(Mixin):
             for word in _info_file:
                 if word['font_color'] not in tmp['used_colors']:
                     tmp['used_colors'].append(word['font_color'])
+                    
+                    if word['font_color'] != base_color:
+                        tmp['non_base_colors'].append(word['font_color'])
                 
-                # check if valid hexa
-                #if int(str(tmp['bg']), 16) and int(str(word['font_color']), 16):
-                if int(str(tmp['bg']), 16) is not None and int(str(word['font_color']), 16) is not None:
-                    font_contrast = contrastor(convert_rgb(word['font_color']))
-                    bg_contrast = contrastor(convert_rgb(tmp['bg']))
-                    contrast_value = font_contrast - bg_contrast
-
-                    if font_contrast > bg_contrast:
+                try:
+                    # check if valid hexa
+                    # if int(str(tmp['bg']), 16) and int(str(word['font_color']), 16):
+                    if int(str(tmp['bg']), 16) is not None and int(str(word['font_color']), 16) is not None:
+                        font_contrast = contrastor(convert_rgb(word['font_color']))
+                        bg_contrast = contrastor(convert_rgb(tmp['bg']))
                         contrast_value = font_contrast - bg_contrast
-                    else:
-                        contrast_value = bg_contrast - font_contrast
-                    
-                    print('base::', font_contrast, 'vs', bg_contrast, '->', contrast_value)
 
-                    # 60 seems to be a decent contrast
-                    #contrast_tmp = word
-                    #contrast_tmp['is_contrast'] = True
-                    if contrast_value <= 60:
-                    #    contrast_tmp['is_contrast'] = False
-                        summary['used_contrasting_colors_between_text_and_background'] = False
-                        summary['avoided_vibrating_color_combinations'] = True
-                    
-                    # tmp['contrasts'].append(contrast_tmp)
+                        if font_contrast > bg_contrast:
+                            contrast_value = font_contrast - bg_contrast
+                        else:
+                            contrast_value = bg_contrast - font_contrast
+                        
+                        print('base::', font_contrast, 'vs', bg_contrast, '->', contrast_value)
 
-            if len(tmp['used_colors']) >= 2 and len(tmp['used_colors']) <= 4:
+                        # 60 seems to be a decent contrast
+                        if contrast_value <= 60:
+                            summary['used_contrasting_colors_between_text_and_background'] = False
+                            summary['avoided_vibrating_color_combinations'] = True
+                            tmp['all_colors_contrast'] = False
+                except Exception as err:
+                    print('skipping:: wrong hex for ', str(_colors_file[slide]))
+                    print(err)
+                    continue
+
+            non_base_colors_percentage = (len(tmp['non_base_colors']) / len(_info_file)) * 100 
+            if len(tmp['used_colors']) >= 2 and len(tmp['used_colors']) <= 4 and \
+                tmp['all_colors_contrast'] == True and \
+                non_base_colors_percentage <= 25:
                 tmp['use_additional_color_for_emphasis'] = True
                 summary['use_additional_color_for_emphasis_all'] = True
             else:
@@ -178,30 +172,35 @@ class ToolChecker(Mixin):
             for color in tmp['used_colors']:
                 if color not in all_colors:
                     all_colors.append(color)
-
-            print (tmp['used_colors'])
-            print (all_colors)
+            
         if len(all_colors) <= 4:
             summary['used_3-to-4_colors_only'] = True
 
         return summary
-        
 
-
-    def check_images(self,):
+    def check_images(self, used_large_fonts):
         summary = {
+            'image_sizes': {},
             'used_images': False,
             'used_clear_and_high_quality_image': False,
-            'used_png_or_jpg_images': True
+            'used_png_or_jpg_images': True,
+            'used_no_more_than_2_images_per_slide': True,
+            'balanced_image_w_text_els_per_slide': {},
+            'balanced_image_w_text_els': False,
         }
 
         valid_extensions = ['png', 'jpg', 'jpeg']
 
         # get base file summary
         _image_file = get_file(ToolChecker, self.check_file, 'images-summary.json')
+        _image_info = get_file(ToolChecker, self.check_file, 'images-info-summary.json')
+        _text_file = get_file(ToolChecker, self.check_file, 'texts-summary.json')
 
         slides_w_images = 0
         for slide in _image_file:
+            summary['image_sizes'][slide] = []
+            summary['balanced_image_w_text_els_per_slide'][slide] = False
+            
             if len(_image_file[slide]) > 0:
                 slides_w_images = slides_w_images + 1
 
@@ -211,21 +210,51 @@ class ToolChecker(Mixin):
 
                     if ext not in valid_extensions:
                         summary['used_png_or_jpg_images'] = False
-                        print(summary['used_png_or_jpg_images'])
 
                     img_info = get_image_reso(self.check_file, img)
                     if 'dpi' in img_info.info:
                         w, h = img_info.info['dpi']
                         if w >= 75 or h >= 75:
-                            summary['used_clear_and_high_quality_image'] = True       
-                    
+                            summary['used_clear_and_high_quality_image'] = True
+                
+                for rel in _image_info[slide]:
+                    L = int(_image_info[slide][rel]['height']) / 360000
+                    W = int(_image_info[slide][rel]['width']) / 360000
+                    summary['image_sizes'][slide].append((L * W) or 0)
+            
+            if len(_image_file[slide]) <= 2:
+                summary['used_no_more_than_2_images_per_slide'] = False
+
+            total_area = sum(summary['image_sizes'][slide])
+            words = len(_text_file[slide])
+
+            # If total image area is between 243.94-483.87 inches
+            # && no. of words is between 12 words and below
+            # && ✓ Used large fonts
+            if (243.94 <= total_area <= 483.87) and (0 <= words <= 12) and used_large_fonts == True:
+                summary['balanced_image_w_text_els_per_slide'][slide] = True
+            
+            # Total image area is between 121.97-243.98 inches
+            # && no. of words is between 23 words and below
+            # && ✓ Used large fonts
+            elif (121.97 <= total_area <= 243.98) and (0 <= words <= 23) and used_large_fonts == True:
+                summary['balanced_image_w_text_els_per_slide'][slide] = True
+
+            # Total image area is below 121.97
+            # && no. of words is between 46 words and below
+            # && ✓ Used large fonts
+            elif (0 < total_area <= 121.97) and (0 <= words <= 46) and used_large_fonts == True:
+                summary['balanced_image_w_text_els_per_slide'][slide] = True
+
         if slides_w_images == 0:
             summary['used_png_or_jpg_images'] = False
 
         if (slides_w_images / len(_image_file.keys())) >= 0.4:
             summary['used_images'] = True
-        
-        #print(summary)
+
+        if False not in summary['balanced_image_w_text_els_per_slide'].values():
+            summary['balanced_image_w_text_els'] = True
+
         return summary
 
 
@@ -240,7 +269,7 @@ def compute_check(param = None):
     colors_scores = checker.check_colors()
     checker.write_summary('./_evaluator/scores/colors-checker-v3.json', colors_scores)
 
-    images_scores = checker.check_images()
+    images_scores = checker.check_images(used_large_fonts=texts_scores['used_large_fonts_all'])
     checker.write_summary('./_evaluator/scores/images-checker-v3.json', images_scores)
 
     print('checking-complete')

@@ -7,22 +7,51 @@ class CollectImages(Mixin):
 	@staticmethod
 	def collect(filepath=None):
 		CollectImages.path = filepath
+		images_list = {}
 		images_info = {}
 
 		# get slide relationships ------------------------------------------------------------
-		path_to_slides = './_evaluator/unzip-pptx/' + CollectImages.path.split('.')[0] + '/ppt/slides'
+		path = './_evaluator/unzip-pptx/' + CollectImages.path.split('.')[0] + '/ppt/slides'
 		relations = CollectImages.collect_rels(filepath)
+		file_list = CollectImages.list_files(path, "xml")
 
 		# filter images from relations available ------------------------------------------------------------
 		for slide in relations:
-			images_info[slide] = []
+			images_list[slide] = []
+			images_info[slide] = {}
 
 			for _rel in relations[slide]:
 				media = relations[slide][_rel]['Target']
 				extension = media.lower().split('.')[-1:]
 
 				if '/media/' in media and extension[0] in ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'tiff', 'tif']:
-					if media not in images_info[slide]:
-						images_info[slide].append(media)
+					images_info[slide][_rel] = {
+						'img': media,
+						'width': None,
+						'height': None
+					}
+					if media not in images_list[slide]:
+						images_list[slide].append(media)
 
-		CollectImages.write_summary(path_to_slides + '/images-summary.json', images_info)
+		# find all images and its usage per slide ------------------------------------------------------------
+		for filename in file_list:
+			with open(path + '/' + filename, encoding='utf8') as file_txt:
+				xml = CollectImages.parseXML(file_txt.read())
+				image_ids = images_info[filename].keys()
+
+				# find all images
+				images = xml.select('pic > blipFill > blip')
+
+				for image in images:
+					try:
+						rel_id = image.parent.parent.select('pic > blipFill > blip')[0]['r:embed']
+						rel_info = image.parent.parent.select('pic spPr > xfrm > ext')[0]
+
+						images_info[filename][rel_id]['width'] = rel_info.attrs['cx']
+						images_info[filename][rel_id]['height'] = rel_info.attrs['cy']
+					except Exception as err:
+						print('skip:', str(err))
+						continue
+
+		CollectImages.write_summary(path + '/images-summary.json', images_list)
+		CollectImages.write_summary(path + '/images-info-summary.json', images_info)
