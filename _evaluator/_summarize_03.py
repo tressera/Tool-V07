@@ -178,10 +178,8 @@ class Summarizer(Mixin):
 
     def compare_images(self,):
         summary = {
-            'slides': [],
-            'total_1': 0,
-            'total_-1': 0,
-            'total_improvement': 0
+            'image_improvement_per_slide': {},
+            'total_improvement': 0,
         }
 
         # get base file summary
@@ -192,29 +190,12 @@ class Summarizer(Mixin):
             _info_base = _base[slide]
             _info_improved = _improved[slide]
 
-            # if no change - 0
-            change = 0
-
-            # if base has 0 images and modified has more - 1
-            if len(_info_base) == 0 and len(_info_improved) > 0:
-                change = 1
-
-            # if image is removed - -1
-            if len(_info_base) > 0 and len(_info_improved) == 0:
-                change = -1
-
-            summary['slides'].append(change)
-
-        ones, nega_ones = count_ones(summary['slides'])
+            added_images = max(len(_info_improved) - len(_info_base), 0)
+            summary['image_improvement_per_slide'][slide] = (added_images / 2) * 100
         
-        # compute all 1
-        summary['total_1'] = ones / len(summary['slides'])
-
-        # compute all -1
-        summary['total_-1'] = nega_ones / len(summary['slides'])
-
-        summary['total_improvement'] = summary['total_1'] - summary['total_-1']
-
+        tmp = sum(summary['image_improvement_per_slide'].values()) / (len(summary['image_improvement_per_slide'].keys()) * 100) * 100
+        summary['total_improvement'] = tmp
+            
         return summary
 
 
@@ -226,15 +207,31 @@ class Summarizer(Mixin):
             'expected_learning_improvement': 0 
         }
 
-        b = 5.36
+        x1 = 4.78
+        x2 = 4.83
+        x3 = 2.5
+        b = 7.5
 
-        # y = m1(x1) + m2(x2) + m3(x3) + b
-        y = (texts_scores['total_improvement'] * 1.91) + (colors_scores['total_improvement'] * 4.47) + (images_scores['total_improvement'] * 1.5) + b
-        print('predicted score', y)
+        y1 = (summary['font_style_improvement'] * x1) + b
+        print('y1:', y1)
 
-        z = (y - b) / y
+        y2 = (summary['font_color_improvement'] * x2) + b
+        print('y2:', y2)
 
-        summary['expected_learning_improvement'] = z
+        y3 = (summary['font_image_improvement'] * x3)+ b
+        print('y3:', y3)
+
+        z1 = (y1 - b) / y1
+        print('z1:', z1)
+
+        z2 = (y2 - b) / y2
+        print('z2:', z2)
+
+        z3 = (y3 - b) / y3
+        print('z3:', z3)
+
+        summary['expected_learning_improvement'] = (z1 + z2 + z3) / 3
+        print(summary['expected_learning_improvement'])
 
         return summary
 
