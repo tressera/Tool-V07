@@ -95,55 +95,88 @@
                             <div class="row">
 
                             <?php
+                                // Check if the Modified PPT is following the guideline using the computation for checking.
+                                $checked_color = json_decode(file_get_contents("./_evaluator/scores/colors-checker-v3.json"), true);
+                                $checked_image = json_decode(file_get_contents("./_evaluator/scores/images-checker-v3.json"), true);
+                                $checked_text = json_decode(file_get_contents("./_evaluator/scores/texts-checker-v3.json"), true);
+
                                 $overall_scores = file_get_contents("./_evaluator/scores/overall-scores-v3.json");
                                 $json_a = json_decode($overall_scores, true);
                             ?>
 
                                 <div class="col-lg-3 mb-3 ">
                                     <img src="assets/images/lipt-font.png" class="center-img">
-                                    <h3 class="text-center">
-                                        <?php
-                                            echo number_format((float)$json_a["font_style_improvement"] * 100, 2, '.', '');
-                                        ?>% ERROR
-                                    </h3>
-                                    <h6 class="text-center font-g">FONT (STYLE)<br>IMPROVEMENT</h6>
-                                    <br>
-                                    <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use bold, italics, and underline sparingly</p>
+                                    <?php 
+                                        if ($checked_text['used_bold_italic_underlined_sparingly_all'] == false) {
+                                    ?>
+                                        <h3 class="text-center">ERROR</h3>
+                                        <br>
+                                        <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use bold, italics, and underline sparingly</p>
+                                    <?php 
+                                        }
+                                        else {
+                                    ?>
+                                        <h3 class="text-center">
+                                            <?php echo number_format((float)$json_a["font_style_improvement"] * 100, 2, '.', '')."%"; ?>
+                                        </h3>
+                                        <h6 class="text-center font-g">FONT (STYLE)<br>IMPROVEMENT</h6>
+                                    <?php 
+                                        }
+                                    ?>
                                 </div>
 
 
                                 <div class="col-lg-3 mb-3 ">
                                     <img src="assets/images/lipt-color.png" class="center-img">
-                                    <h3 class="text-center">
-                                        <?php
-                                            echo number_format((float)$json_a["font_color_improvement"] * 100, 2, '.', '');
-                                        ?>% ERROR
-                                    </h3>
-                                    <h6 class="text-center font-g">(TEXT) COLOR <br>IMPROVEMENT</h6>
-                                    <br>
-                                    <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use additional color in text for emphasis only</p>
-                                    <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use contrasting color</p>
+                                    <?php 
+                                        if ($checked_color['use_additional_color_for_emphasis_all'] == false || $checked_color['used_contrasting_colors_between_text_and_background'] == false) {
+                                    ?>
+                                        <h3 class="text-center">ERROR</h3>
+                                        <br>
+                                        <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use additional color in text for emphasis only</p>
+                                        <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use contrasting color</p>
+                                    <?php 
+                                        }
+                                        else {
+                                    ?>
+                                        <h3 class="text-center">
+                                            <?php echo number_format((float)$json_a["font_color_improvement"] * 100, 2, '.', '')."%"; ?>
+                                        </h3>
+                                        <h6 class="text-center font-g">(TEXT) COLOR <br>IMPROVEMENT</h6>
+                                    <?php 
+                                        }
+                                    ?>
                                 </div>
 
 
                                 <div class="col-lg-3 mb-3 ">
                                     <img src="assets/images/lipt-image.png" class="center-img">
-                                    <h3 class="text-center">
-                                        <?php
-                                            echo number_format((float)$json_a["font_image_improvement"] * 100, 2, '.', '');
-                                        ?>% ERROR
-                                    </h3>
-                                    <h6 class="text-center font-g">IMAGE <br>IMPROVEMENT</h6>
-                                    <br>
-                                    <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use 2 images per slide at most</p>
+                                    <?php 
+                                        if ($checked_image['used_no_more_than_2_images_per_slide'] == false) {
+                                    ?>
+                                        <h3 class="text-center">ERROR</h3>
+                                        <br>
+                                        <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use 2 images per slide at most</p>
+                                    <?php 
+                                        }
+                                        else {
+                                    ?>
+                                        <h3 class="text-center">
+                                            <?php echo number_format((float)$json_a["font_image_improvement"] * 100, 2, '.', '')."%"; ?>
+                                        </h3>
+                                        <h6 class="text-center font-g">IMAGE <br>IMPROVEMENT</h6>
+                                    <?php 
+                                        }
+                                    ?>
+
                                 </div>
 
                                 <div class="col-lg-3 mb-3 ">
                                     <img src="assets/images/lipt-icons-01.png" class="center-img">
                                     <h3 class="text-center">
                                         <?php
-                                            echo number_format((float)$json_a["expected_learning_improvement"] * 100, 2, '.', '');
-                                        ?>%
+                                            echo number_format((float)$json_a["expected_learning_improvement"] * 100, 2, '.', '')."%";
+                                        ?>
                                     </h1>
                                     <h6 class="text-center font-g">EXPECTED LEARNING IMPROVEMENT</h6>
                                 </div>

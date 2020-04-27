@@ -193,7 +193,7 @@ class Summarizer(Mixin):
             added_images = max(len(_info_improved) - len(_info_base), 0)
             summary['image_improvement_per_slide'][slide] = (added_images / 2) * 100
         
-        tmp = sum(summary['image_improvement_per_slide'].values()) / (len(summary['image_improvement_per_slide'].keys()) * 100) * 100
+        tmp = sum(summary['image_improvement_per_slide'].values()) / (len(summary['image_improvement_per_slide'].keys()) * 100)
         summary['total_improvement'] = tmp
             
         return summary

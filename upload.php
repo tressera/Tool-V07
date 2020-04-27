@@ -48,26 +48,8 @@
 		//echo "cmd$: ".("/Library/Frameworks/Python.framework/Versions/3.7/bin/python3 ./_evaluator/main.py --unpack \"".$base_filename.":".$modified_filename."\" --texts --colors --images --videos --animations <br>");
 		$output_unpack = shell_exec("/Library/Frameworks/Python.framework/Versions/3.7/bin/python3 ./_evaluator/main.py --unpack \"".$base_filename.":".$modified_filename."\" --texts --colors --images");
 		echo ($output_unpack."<br>");
-
-		// Check if the Modified PPT is following the guideline using the computation for checking.
-		$checked_color = json_decode(file_get_contents("./_evaluator/scores/colors-checker-v3.json"), true);
-		$checked_image = json_decode(file_get_contents("./_evaluator/scores/images-checker-v3.json"), true);
-		$checked_text = json_decode(file_get_contents("./_evaluator/scores/texts-checker-v3.json"), true);
 		
-		// Checking computation: ‘Use bold, italics, or underline sparingly’.
-		if ($checked_text['used_bold_italic_underlined_sparingly_all'] == false) {
-			echo "<br><b>Error: Use bold, italics, and underline sparingly.<b>";
-			echo "<script>window.location.href = 'error-used_bold_italic_underlined_sparingly_all.php'</script>";
-		}
-		else if ($checked_color['use_additional_color_for_emphasis_all'] == false || $checked_color['used_contrasting_colors_between_text_and_background'] == false) {
-			echo "<br><b>Error: Use additional color in text for emphasis. Use contrasting colors.<b>";
-			echo "<script>window.location.href = 'error-use_additional_color_for_emphasis_all.php'</script>";
-		}
-		else if ($checked_image['used_no_more_than_2_images_per_slide'] == false) {
-			echo "<br><b>Error: Use no more than 2 images per slide.<b>";
-			echo "<script>window.location.href = 'error-used_no_more_than_2_images_per_slide.php'</script>";
-		}
-		else if (strpos($output_unpack, 'DONE') > 0) {
+		if (strpos($output_unpack, 'DONE') > 0) {
 			// proceed with summarize trigger
 			$output_summarize = shell_exec("/Library/Frameworks/Python.framework/Versions/3.7/bin/python3 ./_evaluator/main.py --summarize \"".$base_filename.":".$modified_filename."\"");
 			echo ($output_summarize."<br>");
