@@ -115,8 +115,8 @@ class ToolChecker(Mixin):
                 'bg': 'ffffff', # default
                 'used_colors': [],
                 'non_base_colors': [],
-                'all_colors_contrast': True,
-                'use_additional_color_for_emphasis': None
+                'all_colors_contrast': [],
+                'use_additional_color_for_emphasis': False
             }
 
             if _colors_file[slide]['background'] is not None:
@@ -142,39 +142,49 @@ class ToolChecker(Mixin):
                         else:
                             contrast_value = bg_contrast - font_contrast
                         
-                        print('base::', font_contrast, 'vs', bg_contrast, '->', contrast_value)
+                        # print('base::', font_contrast, 'vs', bg_contrast, '->', contrast_value)
 
                         # 60 seems to be a decent contrast
                         if contrast_value <= 60:
                             summary['used_contrasting_colors_between_text_and_background'] = False
                             summary['avoided_vibrating_color_combinations'] = True
-                            tmp['all_colors_contrast'] = False
+                            tmp['all_colors_contrast'].append(False)
+                        else:
+                            tmp['all_colors_contrast'].append(True)
                 except Exception as err:
                     print('skipping:: wrong hex for ', str(_colors_file[slide]))
                     print(err)
                     continue
 
-            non_base_colors_percentage = (len(tmp['non_base_colors']) / len(_info_file)) * 100 
-            if len(tmp['used_colors']) >= 2 and len(tmp['used_colors']) <= 4 and \
-                tmp['all_colors_contrast'] == True and \
-                non_base_colors_percentage <= 25:
+            non_base_colors_percentage = (tmp['all_colors_contrast'].count(True) / len(_info_file)) * 100 
+            if 2 <= len(tmp['used_colors']) <= 4 and \
+                all(tmp['all_colors_contrast']) and \
+                non_base_colors_percentage <= 41:
                 tmp['use_additional_color_for_emphasis'] = True
-                summary['use_additional_color_for_emphasis_all'] = True
-            else:
-                tmp['use_additional_color_for_emphasis'] = False
 
             summary['slides'][slide] = tmp
+            
+            # print(len(tmp['used_colors']))
+            # print(all(tmp['all_colors_contrast']))
+            # print(non_base_colors_percentage)
+            # print(tmp)
+            # print('\n')
         
         # summarize the entire ppt based on per slide data
         all_colors = []
+        all_use_additional_colors_for_emph = []
         for slide in summary['slides']:
             tmp = summary['slides'][slide]
             for color in tmp['used_colors']:
                 if color not in all_colors:
                     all_colors.append(color)
+            all_use_additional_colors_for_emph.append(tmp['use_additional_color_for_emphasis'])
             
         if len(all_colors) <= 4:
             summary['used_3-to-4_colors_only'] = True
+        
+        # print(all_use_additional_colors_for_emph, all(all_use_additional_colors_for_emph))
+        summary['use_additional_color_for_emphasis_all'] = not all(all_use_additional_colors_for_emph)
 
         return summary
 
@@ -222,7 +232,7 @@ class ToolChecker(Mixin):
                     W = int(_image_info[slide][rel]['width']) / 360000
                     summary['image_sizes'][slide].append((L * W) or 0)
             
-            if len(_image_file[slide]) <= 2:
+            if len(_image_file[slide]) > 2:
                 summary['used_no_more_than_2_images_per_slide'] = False
 
             total_area = sum(summary['image_sizes'][slide])
