@@ -26,18 +26,17 @@ class CollectImages(Mixin):
 
 				if '/media/' in media and extension[0] in ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'tiff', 'tif']:
 					images_info[slide][_rel] = {
-						'img': media,
-						'width': None,
-						'height': None
+						'file': media,
+						'usage': []
 					}
 					if media not in images_list[slide]:
 						images_list[slide].append(media)
 
 		# find all images and its usage per slide ------------------------------------------------------------
-		for filename in file_list:
-			with open(path + '/' + filename, encoding='utf8') as file_txt:
+		for slide in file_list:
+			with open(path + '/' + slide, encoding='utf8') as file_txt:
 				xml = CollectImages.parseXML(file_txt.read())
-				image_ids = images_info[filename].keys()
+				image_ids = images_info[slide].keys()
 
 				# find all images
 				images = xml.select('pic > blipFill > blip')
@@ -47,8 +46,12 @@ class CollectImages(Mixin):
 						rel_id = image.parent.parent.select('pic > blipFill > blip')[0]['r:embed']
 						rel_info = image.parent.parent.select('pic spPr > xfrm > ext')[0]
 
-						images_info[filename][rel_id]['width'] = rel_info.attrs['cx']
-						images_info[filename][rel_id]['height'] = rel_info.attrs['cy']
+						tmp = {
+							'width': rel_info.attrs['cx'],
+							'height': rel_info.attrs['cy'],
+						}
+
+						images_info[slide][rel_id]['usage'].append(tmp)
 					except Exception as err:
 						print('skip:', str(err))
 						continue

@@ -102,12 +102,15 @@
 
                                 $overall_scores = file_get_contents("./_evaluator/scores/overall-scores-v3.json");
                                 $json_a = json_decode($overall_scores, true);
+
+                                $has_error = False;
                             ?>
 
                                 <div class="col-lg-3 mb-3 ">
                                     <img src="assets/images/lipt-font.png" class="center-img">
                                     <?php 
                                         if ($checked_text['used_bold_italic_underlined_sparingly_all'] == false) {
+                                            $has_error = true;
                                     ?>
                                         <h3 class="text-center">ERROR</h3>
                                         <br>
@@ -130,14 +133,23 @@
                                     <img src="assets/images/lipt-color.png" class="center-img">
                                     <?php 
                                         if ($checked_color['use_additional_color_for_emphasis_all'] == false || $checked_color['used_contrasting_colors_between_text_and_background'] == false) {
+                                            $has_error = true;
                                     ?>
                                         <h3 class="text-center">ERROR</h3>
                                         <br>
-                                        <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use additional color in text for emphasis only</p>
-                                        <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use contrasting color</p>
                                     <?php 
                                         }
-                                        else {
+                                        if ($checked_color['use_additional_color_for_emphasis_all'] == false) {
+                                    ?>
+                                        <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use additional color in text for emphasis only</p>
+                                    <?php 
+                                        }
+                                        if ($checked_color['used_contrasting_colors_between_text_and_background'] == false){
+                                    ?>
+                                        <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use contrasting color</p>
+                                    <?php
+                                        }
+                                        if ($checked_color['use_additional_color_for_emphasis_all'] == true && $checked_color['used_contrasting_colors_between_text_and_background'] == true)  {
                                     ?>
                                         <h3 class="text-center">
                                             <?php echo number_format((float)$json_a["font_color_improvement"] * 100, 2, '.', '')."%"; ?>
@@ -153,6 +165,7 @@
                                     <img src="assets/images/lipt-image.png" class="center-img">
                                     <?php 
                                         if ($checked_image['used_no_more_than_2_images_per_slide'] == false) {
+                                            $has_error = true;
                                     ?>
                                         <h3 class="text-center">ERROR</h3>
                                         <br>
@@ -175,7 +188,12 @@
                                     <img src="assets/images/lipt-icons-01.png" class="center-img">
                                     <h3 class="text-center">
                                         <?php
-                                            echo number_format((float)$json_a["expected_learning_improvement"] * 100, 2, '.', '')."%";
+                                            if ($has_error) {
+                                                echo "0%";
+                                            }
+                                            else {
+                                                echo number_format((float)$json_a["expected_learning_improvement"] * 100, 2, '.', '')."%";
+                                            }
                                         ?>
                                     </h1>
                                     <h6 class="text-center font-g">EXPECTED LEARNING IMPROVEMENT</h6>
