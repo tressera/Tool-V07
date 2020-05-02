@@ -232,7 +232,7 @@ class ToolChecker(Mixin):
                         W = int(usage['width']) / 360000
                         summary['image_sizes'][slide].append((L * W) or 0)
             
-            if len(summary['image_sizes'][slide]) > 2:
+            if len(summary['image_sizes'][slide]) > 2 or len(summary['image_sizes'][slide]) == 0:
                 summary['used_no_more_than_2_images_per_slide'] = False
 
             total_area = sum(summary['image_sizes'][slide])
