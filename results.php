@@ -103,7 +103,7 @@
                                 $overall_scores = file_get_contents("./_evaluator/scores/overall-scores-v3.json");
                                 $json_a = json_decode($overall_scores, true);
 
-                                $has_error = False;
+                                $has_error = false;
                             ?>
 
                                 <div class="col-lg-3 mb-3 ">

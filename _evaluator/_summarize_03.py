@@ -68,6 +68,7 @@ class Summarizer(Mixin):
                 # very costly
                 # issues in ex `graphically    ,` vs `graphically`
                 for j in range(0, len(improved)):
+
                     if base['word'] == improved[j]['word']:
                         change = 0
                         # print('\t' + base['word'], base['font_styles'], '->', improved[j]['font_styles'])
@@ -80,6 +81,7 @@ class Summarizer(Mixin):
                         elif set(base['font_styles']) != set(normal) and set(improved[j]['font_styles']) == set(normal):
                             change = -1
 
+                        print(base['word'], base['font_styles'], improved[j]['word'], improved[j]['font_styles'], change)
                         # group by type of change
                         group = None
                         if set(improved[j]['font_styles']) == set(bold_only) or set(base['font_styles']) == set(bold_only):
