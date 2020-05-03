@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from _functions import Mixin
-from utils import get_file, count_ones, count_ones_by_group
+from utils import get_file, count_ones, count_ones_by_group, get_check_file
 
 
 class Summarizer(Mixin):
@@ -209,30 +209,40 @@ class Summarizer(Mixin):
             'expected_learning_improvement': 0 
         }
 
+        tmp = []
+        text_check = get_check_file(Summarizer, 'texts-checker-v3.json')
+        color_check = get_check_file(Summarizer, 'colors-checker-v3.json')
+        image_check = get_check_file(Summarizer, 'images-checker-v3.json')
+
         x1 = 4.78
         x2 = 4.83
         x3 = 2.5
         b = 7.5
 
-        y1 = (summary['font_style_improvement'] * x1) + b
-        print('y1:', y1)
+        z1 = 0
+        if text_check['used_bold_italic_underlined_sparingly_all']:
+            y1 = (summary['font_style_improvement'] * x1) + b
+            z1 = (y1 - b) / y1
+            tmp.append(z1)
+            print('y1', y1, 'z1:', z1)
 
-        y2 = (summary['font_color_improvement'] * x2) + b
-        print('y2:', y2)
+        z2 = 0
+        if color_check['use_additional_color_for_emphasis_all'] and color_check['used_contrasting_colors_between_text_and_background']:
+            y2 = (summary['font_color_improvement'] * x2) + b
+            z2 = (y2 - b) / y2
+            tmp.append(z2)
+            print('y2', y2, 'z2:', z2)
 
-        y3 = (summary['font_image_improvement'] * x3)+ b
-        print('y3:', y3)
+        z3 = 0
+        if image_check['used_no_more_than_2_images_per_slide']:
+            y3 = (summary['font_image_improvement'] * x3)+ b
+            z3 = (y3 - b) / y3
+            tmp.append(z3)
+            print('y3:', y3, 'z3:', z3)
 
-        z1 = (y1 - b) / y1
-        print('z1:', z1)
-
-        z2 = (y2 - b) / y2
-        print('z2:', z2)
-
-        z3 = (y3 - b) / y3
-        print('z3:', z3)
-
-        summary['expected_learning_improvement'] = (z1 + z2 + z3) / 3
+        if len(tmp) > 0:
+            summary['expected_learning_improvement'] = sum(tmp) / len(tmp)
+            
         print(summary['expected_learning_improvement'])
 
         return summary

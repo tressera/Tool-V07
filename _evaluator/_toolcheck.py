@@ -81,12 +81,11 @@ class ToolChecker(Mixin):
             ave_bold = summary['slides'][slide]['font_styles_bold'] / len(_text_file[slide])
             ave_italic = summary['slides'][slide]['font_styles_italic'] / len(_text_file[slide])
             ave_underlined = summary['slides'][slide]['font_styles_underlined'] / len(_text_file[slide])
-            
+
             ave_tmp = [ave_bold, ave_italic, ave_underlined]
             total_biu = sum(ave_tmp)
-            ave_tmp_greater_than_zero = [i for i in ave_tmp if i > 0]
-            
-            if all(i <= 0.25 for i in ave_tmp_greater_than_zero) and total_biu >= 0.05:
+
+            if all(i <= 0.25 for i in ave_tmp) and total_biu >= 0.05:
                 summary['slides'][slide]['used_bold_italic_underlined_sparingly'] = True
                 summary['used_bold_italic_underlined_sparingly_all'] = True
 

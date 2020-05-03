@@ -1,5 +1,12 @@
 from PIL import Image
 
+def get_check_file(Mixin, file):
+    path = './_evaluator/scores/' + file
+
+    with open(path, encoding='utf8') as file_txt:
+        return (Mixin.parseJSON(file_txt.read()))
+
+
 def get_file(Mixin, file, summary_file):
     path = './_evaluator/unzip-pptx/' + file.split('.')[0] + '/ppt/slides'
     file_list = Mixin.list_files(path, "json")

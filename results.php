@@ -103,14 +103,14 @@
                                 $overall_scores = file_get_contents("./_evaluator/scores/overall-scores-v3.json");
                                 $json_a = json_decode($overall_scores, true);
 
-                                $has_error = false;
+                                $has_error = 0;
                             ?>
 
                                 <div class="col-lg-3 mb-3 ">
                                     <img src="assets/images/lipt-font.png" class="center-img">
                                     <?php 
                                         if ($checked_text['used_bold_italic_underlined_sparingly_all'] == false) {
-                                            $has_error = true;
+                                            $has_error++;
                                     ?>
                                         <h3 class="text-center">ERROR</h3>
                                         <br>
@@ -133,7 +133,7 @@
                                     <img src="assets/images/lipt-color.png" class="center-img">
                                     <?php 
                                         if ($checked_color['use_additional_color_for_emphasis_all'] == false || $checked_color['used_contrasting_colors_between_text_and_background'] == false) {
-                                            $has_error = true;
+                                            $has_error++;
                                     ?>
                                         <h3 class="text-center">ERROR</h3>
                                         <br>
@@ -165,7 +165,7 @@
                                     <img src="assets/images/lipt-image.png" class="center-img">
                                     <?php 
                                         if ($checked_image['used_no_more_than_2_images_per_slide'] == false) {
-                                            $has_error = true;
+                                            $has_error++;
                                     ?>
                                         <h3 class="text-center">ERROR</h3>
                                         <br>
@@ -188,7 +188,7 @@
                                     <img src="assets/images/lipt-icons-01.png" class="center-img">
                                     <h3 class="text-center">
                                         <?php
-                                            if ($has_error) {
+                                            if ($has_error == 3) {
                                                 echo "0%";
                                             }
                                             else {
