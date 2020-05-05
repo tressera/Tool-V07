@@ -169,7 +169,7 @@
                                     ?>
                                         <h3 class="text-center">ERROR</h3>
                                         <br>
-                                        <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use 2 images per slide at most</p>
+                                        
                                     <?php 
                                         }
                                         if ($checked_image['used_images'] == false) {
