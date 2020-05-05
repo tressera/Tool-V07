@@ -234,7 +234,7 @@ class Summarizer(Mixin):
             print('y2', y2, 'z2:', z2)
 
         z3 = 0
-        if image_check['used_no_more_than_2_images_per_slide']:
+        if image_check['used_images'] and image_check['used_png_or_jpg_images'] and image_check['balanced_image_w_text_els'] and image_check['used_no_more_than_2_images_per_slide']:
             y3 = (summary['font_image_improvement'] * x3)+ b
             z3 = (y3 - b) / y3
             tmp.append(z3)

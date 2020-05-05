@@ -164,7 +164,7 @@
                                 <div class="col-lg-3 mb-3 ">
                                     <img src="assets/images/lipt-image.png" class="center-img">
                                     <?php 
-                                        if ($checked_image['used_no_more_than_2_images_per_slide'] == false) {
+                                        if ($checked_image['used_images'] == false || $checked_image['used_png_or_jpg_images'] == false || $checked_image['balanced_image_w_text_els'] == false || $checked_image['used_no_more_than_2_images_per_slide'] == false) {
                                             $has_error++;
                                     ?>
                                         <h3 class="text-center">ERROR</h3>
@@ -172,7 +172,27 @@
                                         <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Use 2 images per slide at most</p>
                                     <?php 
                                         }
-                                        else {
+                                        if ($checked_image['used_images'] == false) {
+                                    ?>
+                                        <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Used images</p>
+                                    <?php 
+                                        }
+                                        if ($checked_image['used_png_or_jpg_images'] == false){
+                                    ?>
+                                        <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Used png or jpg images.</p>
+                                    <?php 
+                                        }
+                                        if ($checked_image['balanced_image_w_text_els'] == false){
+                                    ?>
+                                        <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Balanced image (size) with text elements.</p>
+                                    <?php 
+                                        }
+                                        if ($checked_image['used_no_more_than_2_images_per_slide'] == false){
+                                    ?>
+                                        <p class="text-center font-g"><i class="fa fa-warning" style="font-size:15px;color:red"></i> Used 2 images per slide at most.</p>
+                                    <?php
+                                        }
+                                        if ($checked_image['used_images'] == true && $checked_image['used_png_or_jpg_images'] == true && $checked_image['balanced_image_w_text_els'] == true && $checked_image['used_no_more_than_2_images_per_slide'] == true) {
                                     ?>
                                         <h3 class="text-center">
                                             <?php echo number_format((float)$json_a["font_image_improvement"] * 100, 2, '.', '')."%"; ?>

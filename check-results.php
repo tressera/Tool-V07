@@ -209,7 +209,7 @@
                                         <?php
                                             if ($json_a["used_no_more_than_2_images_per_slide"] == true) { echo '&#9989;'; }
                                             else { echo '&#10060;'; }
-                                        ?> Used 2 images per slide at most
+                                        ?> Used 2 images per slide at most.
                                     </p>
                                     <p class="text-left font-g">
                                         <?php
