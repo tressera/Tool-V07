@@ -100,6 +100,8 @@ class ToolChecker(Mixin):
     def check_colors(self,):
         summary = {
             'slides': {},
+            'used_colors': [],
+            'all_colors_contrast': [],
             'used_3-to-4_colors_only': False,
             'used_contrasting_colors_between_text_and_background': True,
             'avoided_vibrating_color_combinations': False,
@@ -110,23 +112,25 @@ class ToolChecker(Mixin):
         _texts_file = get_file(ToolChecker, self.check_file, 'texts-summary.json')
         _colors_file = get_file(ToolChecker, self.check_file, 'colors-summary.json')
 
+        total_num_of_words = 0
         for slide in _texts_file:
             _info_file = _texts_file[slide]
+            total_num_of_words = total_num_of_words + len(_info_file)
 
             base_color = '000000'
             tmp = {
                 'bg': 'ffffff', # default
-                'used_colors': [],
-                'all_colors_contrast': [],
-                'use_additional_color_for_emphasis': False
+                # 'used_colors': [],
+                # 'all_colors_contrast': [],
+                # 'use_additional_color_for_emphasis': False
             }
 
             if _colors_file[slide]['background'] is not None:
                 tmp['bg'] = _colors_file[slide]['background']
 
             for word in _info_file:
-                if word['font_color'] not in tmp['used_colors']:
-                    tmp['used_colors'].append(word['font_color'])
+                if word['font_color'] not in summary['used_colors']:
+                    summary['used_colors'].append(word['font_color'])
                 
                 try:
                     # check if valid hexa
@@ -150,44 +154,27 @@ class ToolChecker(Mixin):
                             summary['avoided_vibrating_color_combinations'] = True
 
                         if word['font_color'] != base_color:
-                            tmp['all_colors_contrast'].append(False if contrast_value <= estimated_contrast else True)
+                            summary['all_colors_contrast'].append(False if contrast_value <= estimated_contrast else True)
+
                 except Exception as err:
                     print('skipping:: wrong hex for ', str(_colors_file[slide]))
                     print(err)
                     continue
 
-            non_base_colors_percentage = (tmp['all_colors_contrast'].count(True) / len(_info_file)) * 100 
-            print('all_colors_contrast::', tmp['all_colors_contrast'])
-            print('used_colors::', tmp['used_colors'])
-            print('non_base_colors_percentage::', non_base_colors_percentage)
-            if 2 <= len(tmp['used_colors']) <= 4 and \
-                all(tmp['all_colors_contrast']) and \
-                non_base_colors_percentage <= 41:
-                tmp['use_additional_color_for_emphasis'] = True
-
             summary['slides'][slide] = tmp
-            
-            # print(len(tmp['used_colors']))
-            # print(all(tmp['all_colors_contrast']))
-            # print(non_base_colors_percentage)
-            # print(tmp)
-            # print('\n')
-        
-        # summarize the entire ppt based on per slide data
-        all_colors = []
-        all_use_additional_colors_for_emph = []
-        for slide in summary['slides']:
-            tmp = summary['slides'][slide]
-            for color in tmp['used_colors']:
-                if color not in all_colors:
-                    all_colors.append(color)
-            all_use_additional_colors_for_emph.append(tmp['use_additional_color_for_emphasis'])
-            
-        if len(all_colors) <= 4:
-            summary['used_3-to-4_colors_only'] = True
-        
-        summary['use_additional_color_for_emphasis_all'] = all(all_use_additional_colors_for_emph)
 
+        if len(summary['used_colors']) <= 4:
+            summary['used_3-to-4_colors_only'] = True
+            
+        non_base_colors_percentage = (summary['all_colors_contrast'].count(True) / total_num_of_words) * 100 
+        print('all_colors_contrast::', (summary['all_colors_contrast'].count(True)), len(summary['all_colors_contrast']), total_num_of_words)
+        print('used_colors::', summary['used_colors'])
+        print('non_base_colors_percentage::', non_base_colors_percentage, '\n')
+        if 2 <= len(summary['used_colors']) <= 4 and \
+            all(summary['all_colors_contrast']) and \
+            non_base_colors_percentage <= 41:
+            summary['use_additional_color_for_emphasis_all'] = True
+                    
         return summary
 
     def check_images(self, used_large_fonts):
