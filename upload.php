@@ -50,9 +50,14 @@
 		echo ($output_unpack."<br>");
 		
 		if (strpos($output_unpack, 'DONE') > 0) {
+			// check trigger
+			$output_check = shell_exec("/Library/Frameworks/Python.framework/Versions/3.7/bin/python3 ./_evaluator/main.py --check \"".$modified_filename."\"");
+			echo ($output_check."<br>");
+
 			// proceed with summarize trigger
 			$output_summarize = shell_exec("/Library/Frameworks/Python.framework/Versions/3.7/bin/python3 ./_evaluator/main.py --summarize \"".$base_filename.":".$modified_filename."\"");
 			echo ($output_summarize."<br>");
+
 			if (strpos($output_summarize, 'DONE') > 0) {
 				echo "<br>redirect to <a href=\"results.php\">results</a> page";
 				echo "<script>window.location.href = 'results.php'</script>";
